@@ -1,0 +1,6 @@
+http://www-inst.eecs.berkeley.edu/~cs191/sp05/lectures/lecture10.pdf
+
+Above is a good intro to calculating spin operators
+Can use this to calculate the spin operators regardless of spin value?
+
+I want a function that will calculate the cartesian spin operator given the spin
