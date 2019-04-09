@@ -18,9 +18,10 @@ public:
 	void SetSpinOperators(std::vector<std::vector<Eigen::MatrixXcd>>);
 	std::vector<std::vector<Eigen::MatrixXcd>> GetSpinOperators();
 
-	//Eigen::MatrixXcd zeeman(Eigen::MatrixXcd [3], double [3]);
-	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>, double [3]);
 	void spinsToSpinOperators(float []);
+
+	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>, double [3]);
+	Eigen::MatrixXcd hyperfine(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, double);
 
 private:
 	int size_of_matrix;
@@ -31,6 +32,8 @@ private:
 	std::vector<float> generateMlValues(float spin);
 	std::vector<Eigen::MatrixXcd> spinOperatorCorrectSpace(int pos, int numberOfSpins, double spin);
 	std::vector<Eigen::MatrixXcd> deriveSpinOperator(float spin);
+
+	Eigen::MatrixXcd calculateCombinationMatrix(Eigen::MatrixXcd, std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>);
 };
 
 #endif

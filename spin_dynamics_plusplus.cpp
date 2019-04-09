@@ -173,4 +173,28 @@ Eigen::MatrixXcd SpinDynamics::zeeman(std::vector<Eigen::MatrixXcd> electron_spi
         }
 
         return h_zeeman;
+
+}
+
+Eigen::MatrixXcd SpinDynamics::hyperfine(std::vector<Eigen::MatrixXcd>  electron_spin_ops, std::vector<Eigen::MatrixXcd> nuclear_spin_ops, double hyperfine_constant_A){
+
+	Eigen::Matrix3cd hyperfine_matrix = hyperfine_constant_A*0.002*M_PI*Eigen::Matrix3cd::Identity(3,3);
+
+	Eigen::MatrixXcd h_hyperfine = calculateCombinationMatrix(hyperfine_matrix, electron_spin_ops, nuclear_spin_ops);
+
+	return h_hyperfine;
+}
+
+Eigen::MatrixXcd SpinDynamics::calculateCombinationMatrix(Eigen::MatrixXcd constants_matrix, std::vector<Eigen::MatrixXcd> spin1, std::vector<Eigen::MatrixXcd> spin2){
+	int size_of_matrix = spin1[0].cols();
+	Eigen::MatrixXcd combination_matrix = Eigen::MatrixXcd::Zero(size_of_matrix,size_of_matrix);
+
+	for(int i=0; i<3; i++){
+                for(int j=0; j<3; j++){
+                        Eigen::MatrixXcd spin_op_dot_prod = spin1[i].adjoint()*spin2[j];
+                        combination_matrix+=constants_matrix(i,j)*spin_op_dot_prod;
+                }       
+        }
+
+	return combination_matrix;
 }

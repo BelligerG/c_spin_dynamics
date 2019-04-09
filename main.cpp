@@ -12,7 +12,6 @@
  */
 
 /*Steps
- * Hyperfine
  * Dipolar
  * Exchange
  * Yields
@@ -42,6 +41,11 @@ int main()
 	zeeman += SPD.zeeman(spin_ops[1], magnetic_field);
 
 	std::cout << zeeman << std::endl;
+
+	Eigen::MatrixXcd h_hyperfine = SPD.hyperfine(spin_ops[0], spin_ops[1], 10.3172);
+
+	std::cout << h_hyperfine << std::endl;
+
 
 	return 0;
 }
