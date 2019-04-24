@@ -24,6 +24,8 @@ public:
 	Eigen::MatrixXcd hyperfine(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, double);
 	Eigen::MatrixXcd dipolar(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, Eigen::Vector3d r);
 
+	std::vector<Eigen::Vector3d> calculateDistances(std::vector<Eigen::Vector3d>);
+
 private:
 	int size_of_matrix;
 	double magnetic_field [3];

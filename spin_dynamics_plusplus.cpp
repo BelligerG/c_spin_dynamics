@@ -199,3 +199,31 @@ Eigen::MatrixXcd SpinDynamics::kroneckerProductComplexSlow(Eigen::MatrixXcd a, E
         return c; 
  
 }
+
+//Calculates the distances between points, the returned values are in the format (for a 3 coord system)
+// [01, 02, 12]
+// And for 4 coordinates:
+// [01, 02, 03, 12, 13, 23]
+// This is due to the nature of the recursion (meaning no distance is calculated twice)
+std::vector<Eigen::Vector3d> SpinDynamics::calculateDistances(std::vector<Eigen::Vector3d> coordinates){
+	int number_of_electrons_left = coordinates.size();
+	std::vector<Eigen::Vector3d> distances;
+
+	if (number_of_electrons_left == 2){
+		distances.push_back(coordinates[0]-coordinates[1]);
+		return distances;
+	} else {
+		//Slicing the vector
+		std::vector<Eigen::Vector3d>::const_iterator begin = coordinates.begin();
+		std::vector<Eigen::Vector3d>::const_iterator last = coordinates.begin() + coordinates.size();
+		std::vector<Eigen::Vector3d> nu_coordinates(begin+1, last);
+
+		distances = calculateDistances(nu_coordinates);
+
+		for (int coord_index=0; coord_index<number_of_electrons_left-1; coord_index++){
+			distances.push_back(coordinates[0] - coordinates[coord_index+1]);
+		}
+	}
+
+	return distances;
+}

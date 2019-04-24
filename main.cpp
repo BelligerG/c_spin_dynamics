@@ -50,6 +50,19 @@ int main()
 	std::cout << h_dipole << std::endl;
 
 
+	std::vector<Eigen::Vector3d> coordinates;
+	coordinates.push_back({0, 0, 0});
+	coordinates.push_back({0, 0, 4.5});
+	coordinates.push_back({0, 0, 9});
+	coordinates.push_back({0, 0, 20});
+
+	std::vector<Eigen::Vector3d> distances = SPD.calculateDistances(coordinates);
+
+	int size = distances.size();
+	for (int i=0;i<size;i++){
+		std::cout << distances[i] << std::endl;
+	}
+
 	return 0;
 }
 
