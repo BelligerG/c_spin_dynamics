@@ -73,28 +73,6 @@ std::vector<Eigen::MatrixXcd> SpinDynamics::spinOperatorCorrectSpace(int pos, in
 	Eigen::MatrixXcd matRight;
 	int dimension;
 
-
-	/*Eigen::MatrixXcd x = std::get<0>(ops);
-	Eigen::MatrixXcd y = std::get<1>(ops);
-	Eigen::MatrixXcd z = std::get<2>(ops);
-
-	Eigen::MatrixXcd spin_ops [3] = {x, y, z};
-	
-	for (int i =0; i<3; i++){
-
-		dimension = pow(2, pos);
-		matLeft = Eigen::MatrixXcd::Identity(dimension, dimension);
-		spin_ops[i] = SpinDynamics::kroneckerProductComplex(matLeft, spin_ops[i]);
-
-		dimension = pow(2,(numberOfSpins-(pos+1)));
-		matRight = Eigen::MatrixXcd::Identity(dimension, dimension);
-		spin_ops[i] = SpinDynamics::kroneckerProductComplex(spin_ops[i], matRight);
-	}
-	
-	std::get<0>(ops) = spin_ops[0];
-	std::get<1>(ops) = spin_ops[1];
-	std::get<2>(ops) = spin_ops[2];*/
-
 	for (int i =0; i<3; i++){
 		
 		dimension = pow(2, pos);
@@ -149,20 +127,6 @@ void SpinDynamics::spinsToSpinOperators(float spins []){
 	spin_operators = spin_ops;
 }
 
-//Calculates the zeeman term
-/*Eigen::MatrixXcd SpinDynamics::zeeman(Eigen::MatrixXcd electron_spin_ops[3], double magnetic_field[3]){
-
-	Eigen::MatrixXcd h_zeeman = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
-	for(int i=0; i<3; i++){
- 
-		Eigen::MatrixXcd zeeman = -1*0.17608597087294475*magnetic_field[i]*(electron_spin_ops[i]);
-		h_zeeman += zeeman;
-        }
-
-        return h_zeeman;
-}*/
-
-
 Eigen::MatrixXcd SpinDynamics::zeeman(std::vector<Eigen::MatrixXcd> electron_spin_ops, double magnetic_field[3]){
 
 	Eigen::MatrixXcd h_zeeman = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
@@ -197,4 +161,41 @@ Eigen::MatrixXcd SpinDynamics::calculateCombinationMatrix(Eigen::MatrixXcd const
         }
 
 	return combination_matrix;
+}
+
+
+//Currently takes in distance, it would be better to give the coordinates and calculate the distances
+Eigen::MatrixXcd SpinDynamics::dipolar(std::vector<Eigen::MatrixXcd> spin1, std::vector<Eigen::MatrixXcd> spin2, Eigen::Vector3d r){
+
+	Eigen::MatrixXcd dipolar(3,3);
+
+	//calculates the numerator for the dipolar interaction (lots of constants and unit conversions)
+	double dr3 = -4*M_PI*1e-7 * pow((2.0023193043617 * 9.27400968e-24), 2)/(4*M_PI*1e-30)/6.62606957e-34/1e6;
+	double r_norm = r.norm();
+	double d = dr3/pow(r_norm,3);
+	Eigen::Vector3d e = r/r_norm;
+
+
+	Eigen::MatrixXcd A = d*(3*kroneckerProductComplexSlow(e, e.transpose())-Eigen::MatrixXcd::Identity(3,3)) *2e-3*M_PI;
+
+	//Calculates the dipolar matrix, a 3x3 matrix with x*x, x*y, x*z on the first row etc...
+	Eigen::MatrixXcd h_dipolar = calculateCombinationMatrix(A, spin1, spin2);
+	return h_dipolar;
+}
+
+Eigen::MatrixXcd SpinDynamics::kroneckerProductComplexSlow(Eigen::MatrixXcd a, Eigen::MatrixXcd b){
+
+        Eigen::MatrixXcd c(a.rows()*b.rows(), a.cols()*b.cols());
+        for(int i=0; i<a.rows();i++){
+                for(int j=0; j<a.cols();j++){
+                        for(int k=0; k<b.rows();k++){
+                                for(int l=0; l<b.cols();l++){
+                                        c(b.rows()*i+k, b.cols()*j+l) = a(i,j)*b(k,l);
+                                }
+                        }
+                }
+        }
+        
+        return c; 
+ 
 }

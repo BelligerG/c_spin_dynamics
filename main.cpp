@@ -12,12 +12,11 @@
  */
 
 /*Steps
- * Dipolar
  * Exchange
  * Yields
  */
 
-
+//Dipolar and exchange distances need to be calculated for all radical pairs
 
 int main()
 {
@@ -45,6 +44,10 @@ int main()
 	Eigen::MatrixXcd h_hyperfine = SPD.hyperfine(spin_ops[0], spin_ops[1], 10.3172);
 
 	std::cout << h_hyperfine << std::endl;
+
+	Eigen::MatrixXcd h_dipole = SPD.dipolar(spin_ops[0], spin_ops[1], Eigen::Vector3d(1, 2, 3));
+
+	std::cout << h_dipole << std::endl;
 
 
 	return 0;

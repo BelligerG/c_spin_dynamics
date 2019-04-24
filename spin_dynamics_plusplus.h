@@ -22,6 +22,7 @@ public:
 
 	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>, double [3]);
 	Eigen::MatrixXcd hyperfine(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, double);
+	Eigen::MatrixXcd dipolar(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, Eigen::Vector3d r);
 
 private:
 	int size_of_matrix;
@@ -34,6 +35,7 @@ private:
 	std::vector<Eigen::MatrixXcd> deriveSpinOperator(float spin);
 
 	Eigen::MatrixXcd calculateCombinationMatrix(Eigen::MatrixXcd, std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>);
+	Eigen::MatrixXcd kroneckerProductComplexSlow(Eigen::MatrixXcd, Eigen::MatrixXcd);
 };
 
 #endif
