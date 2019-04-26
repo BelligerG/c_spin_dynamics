@@ -9,6 +9,9 @@ int SpinDynamics::GetSizeOfMatrix(){ return size_of_matrix; }
 void SpinDynamics::SetSpinOperators(std::vector<std::vector<Eigen::MatrixXcd>> spin_ops){ spin_operators = spin_ops; }
 std::vector<std::vector<Eigen::MatrixXcd>> SpinDynamics::GetSpinOperators(){ return spin_operators; }
 
+void SpinDynamics::SetNumberOfElectrons(int number){ number_of_electrons = number; }
+int SpinDynamics::GetNumberOfElectrons(){ return number_of_electrons; }
+
 //Generates the spin operator for a spin particle
 std::vector<Eigen::MatrixXcd> SpinDynamics::deriveSpinOperator(float spin){
 
@@ -117,14 +120,15 @@ std::vector<float> SpinDynamics::generateMlValues(float spin){
 
 //Takes in an array of spins and returns a vector of spin operators
 //Does this need to be redesined to calculate derive spin operators only once?
-void SpinDynamics::spinsToSpinOperators(float spins []){
+void SpinDynamics::spinsToSpinOperators(float spins [], int number_of_spins){
 
-	int number_of_spins = sizeof(spins)/sizeof(spins[0]);
 	std::vector<std::vector<Eigen::MatrixXcd> > spin_ops;
+
 	for (int spin_counter = 0; spin_counter<number_of_spins; spin_counter++){
 		spin_ops.push_back(spinOperatorCorrectSpace(spin_counter, number_of_spins, spins[spin_counter]));
 	}
 	spin_operators = spin_ops;
+	size_of_matrix = std::pow(2, number_of_spins);
 }
 
 Eigen::MatrixXcd SpinDynamics::zeeman(std::vector<Eigen::MatrixXcd> electron_spin_ops, double magnetic_field[3]){
@@ -226,4 +230,19 @@ std::vector<Eigen::Vector3d> SpinDynamics::calculateDistances(std::vector<Eigen:
 	}
 
 	return distances;
+}
+
+Eigen::MatrixXcd SpinDynamics::calculateDipolar(std::vector<Eigen::Vector3d> coordinates){
+	std::vector<Eigen::Vector3d> distances = calculateDistances(coordinates);
+
+	//Calculate the dipolar coupling in the same order as the distances
+	int dist_counter=0;
+	Eigen::MatrixXcd h_dipolar = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
+	for (int spin1_counter=0; spin1_counter<number_of_electrons;spin1_counter++){
+		for (int spin2_counter=spin1_counter+1; spin2_counter<number_of_electrons;spin2_counter++){
+			h_dipolar+=dipolar(spin_operators[spin1_counter], spin_operators[spin2_counter], distances[dist_counter]);
+			dist_counter++;
+		}
+	}
+	return h_dipolar;
 }
