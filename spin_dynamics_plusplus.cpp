@@ -12,6 +12,8 @@ std::vector<std::vector<Eigen::MatrixXcd>> SpinDynamics::GetSpinOperators(){ ret
 void SpinDynamics::SetNumberOfElectrons(int number){ number_of_electrons = number; }
 int SpinDynamics::GetNumberOfElectrons(){ return number_of_electrons; }
 
+void SpinDynamics::SetMagneticField(std::vector<double> mField){ magnetic_field = mField; }
+
 //Generates the spin operator for a spin particle
 std::vector<Eigen::MatrixXcd> SpinDynamics::deriveSpinOperator(float spin){
 
@@ -131,7 +133,7 @@ void SpinDynamics::spinsToSpinOperators(float spins [], int number_of_spins){
 	size_of_matrix = std::pow(2, number_of_spins);
 }
 
-Eigen::MatrixXcd SpinDynamics::zeeman(std::vector<Eigen::MatrixXcd> electron_spin_ops, double magnetic_field[3]){
+Eigen::MatrixXcd SpinDynamics::zeeman(std::vector<Eigen::MatrixXcd> electron_spin_ops){
 
 	Eigen::MatrixXcd h_zeeman = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
 	for(int i=0; i<3; i++){
@@ -245,4 +247,56 @@ Eigen::MatrixXcd SpinDynamics::calculateDipolar(std::vector<Eigen::Vector3d> coo
 		}
 	}
 	return h_dipolar;
+}
+
+Eigen::MatrixXcd SpinDynamics::singletProjector(std::vector<Eigen::MatrixXcd> electron1_spin_ops, std::vector<Eigen::MatrixXcd> electron2_spin_ops){
+	
+	Eigen::MatrixXcd singlet_projector = 0.25*Eigen::MatrixXcd::Identity(size_of_matrix, size_of_matrix);
+        Eigen::MatrixXcd total_dot_product = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
+
+        for(int i=0; i<3; i++){
+                total_dot_product += electron1_spin_ops[i].adjoint()*electron2_spin_ops[i];
+        }
+
+        singlet_projector -= total_dot_product;
+	return singlet_projector;
+}
+
+double SpinDynamics::expScaling(double beta, double r, double dist){
+	double exp_scaling = exp (-beta*(dist - 2*r));
+	return exp_scaling;
+}
+
+double SpinDynamics::singletYield(Eigen::MatrixXcd hamiltonian, Eigen::MatrixXcd K1, double KSc){
+
+	std::complex<double> icomp(0.0,1.0);
+	Eigen::MatrixXcd h_effective = hamiltonian - (icomp*K1);
+
+        Eigen::ComplexEigenSolver<Eigen::MatrixXcd> es(h_effective);
+
+        Eigen::MatrixXcd eigvecs = es.eigenvectors();
+	Eigen::VectorXcd eivals = es.eigenvalues();
+
+        Eigen::MatrixXcd eigvecs_reversed = eigvecs.inverse();
+        Eigen::MatrixXcd rho_0_data = eigvecs_reversed * eigvecs_reversed.adjoint();
+        Eigen::MatrixXcd rhoS = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
+
+
+        for(int i=0; i<eigvecs.rows();i++){
+                for(int j=0; j<eigvecs.rows();j++){
+                        rhoS(i,j) =  rho_0_data(i,j)/(icomp*(eivals[i]-eivals.conjugate()[j])+KSc);
+                }
+        }
+
+
+        double yields_0=0;
+        rhoS = eigvecs*(rhoS*eigvecs.adjoint());
+
+	
+        for(int i=0; i<rhoS.cols();i++){
+                for(int j=0; j<rhoS.cols();j++){
+                        yields_0+=(K1(i,j)*rhoS(j,i)).real();
+                }
+        }
+        return (2*yields_0)/size_of_matrix;
 }

@@ -20,19 +20,25 @@ public:
 	std::vector<std::vector<Eigen::MatrixXcd>> GetSpinOperators();
 	void SetNumberOfElectrons(int);
 	int GetNumberOfElectrons();
+	void SetMagneticField(std::vector<double>);
+
 
 	//Setting up spin operators
 	void spinsToSpinOperators(float [], int);
 
 	//Hamiltonian sections
-	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>, double [3]);
+	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>);
 	Eigen::MatrixXcd hyperfine(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, double);
 	Eigen::MatrixXcd calculateDipolar(std::vector<Eigen::Vector3d>);
+	double singletYield(Eigen::MatrixXcd hamiltonian, Eigen::MatrixXcd K1, double KSc);
+	double expScaling(double beta, double r, double dist);
+	Eigen::MatrixXcd singletProjector(std::vector<Eigen::MatrixXcd> electron1_spin_ops, std::vector<Eigen::MatrixXcd> electron2_spin_ops);
 
 private:
 	//Internal variables
 	int size_of_matrix;
-	double magnetic_field [3];
+	//double magnetic_field [3];
+	std::vector<double> magnetic_field;
 	int number_of_electrons;
 	std::vector<std::vector<Eigen::MatrixXcd>> spin_operators;
 
