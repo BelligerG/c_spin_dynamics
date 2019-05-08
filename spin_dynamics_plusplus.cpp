@@ -14,6 +14,8 @@ int SpinDynamics::GetNumberOfElectrons(){ return number_of_electrons; }
 
 void SpinDynamics::SetMagneticField(std::vector<double> mField){ magnetic_field = mField; }
 
+Eigen::MatrixXcd SpinDynamics::GetHamiltonianMatrix(){ return hamiltonian_matrix; }
+
 //Generates the spin operator for a spin particle
 std::vector<Eigen::MatrixXcd> SpinDynamics::deriveSpinOperator(float spin){
 
@@ -156,7 +158,7 @@ Eigen::MatrixXcd SpinDynamics::hyperfine(std::vector<Eigen::MatrixXcd>  electron
 }
 
 Eigen::MatrixXcd SpinDynamics::calculateCombinationMatrix(Eigen::MatrixXcd constants_matrix, std::vector<Eigen::MatrixXcd> spin1, std::vector<Eigen::MatrixXcd> spin2){
-	int size_of_matrix = spin1[0].cols();
+
 	Eigen::MatrixXcd combination_matrix = Eigen::MatrixXcd::Zero(size_of_matrix,size_of_matrix);
 
 	for(int i=0; i<3; i++){
@@ -240,12 +242,13 @@ Eigen::MatrixXcd SpinDynamics::calculateDipolar(std::vector<Eigen::Vector3d> coo
 	//Calculate the dipolar coupling in the same order as the distances
 	int dist_counter=0;
 	Eigen::MatrixXcd h_dipolar = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
-	for (int spin1_counter=0; spin1_counter<number_of_electrons;spin1_counter++){
-		for (int spin2_counter=spin1_counter+1; spin2_counter<number_of_electrons;spin2_counter++){
+	for (int spin1_counter=number_of_electrons-2; spin1_counter>-1; spin1_counter--){
+		for (int spin2_counter=spin1_counter+1; spin2_counter<number_of_electrons; spin2_counter++){
 			h_dipolar+=dipolar(spin_operators[spin1_counter], spin_operators[spin2_counter], distances[dist_counter]);
 			dist_counter++;
 		}
 	}
+
 	return h_dipolar;
 }
 

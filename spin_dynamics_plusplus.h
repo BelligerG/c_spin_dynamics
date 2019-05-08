@@ -21,6 +21,7 @@ public:
 	void SetNumberOfElectrons(int);
 	int GetNumberOfElectrons();
 	void SetMagneticField(std::vector<double>);
+	Eigen::MatrixXcd GetHamiltonianMatrix();
 
 
 	//Setting up spin operators
@@ -30,6 +31,11 @@ public:
 	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>);
 	Eigen::MatrixXcd hyperfine(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, double);
 	Eigen::MatrixXcd calculateDipolar(std::vector<Eigen::Vector3d>);
+
+	Eigen::MatrixXcd dipolar(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, Eigen::Vector3d r);
+
+
+	//Yields and misc - needs a reshuffle
 	double singletYield(Eigen::MatrixXcd hamiltonian, Eigen::MatrixXcd K1, double KSc);
 	double expScaling(double beta, double r, double dist);
 	Eigen::MatrixXcd singletProjector(std::vector<Eigen::MatrixXcd> electron1_spin_ops, std::vector<Eigen::MatrixXcd> electron2_spin_ops);
@@ -37,10 +43,12 @@ public:
 private:
 	//Internal variables
 	int size_of_matrix;
-	//double magnetic_field [3];
-	std::vector<double> magnetic_field;
 	int number_of_electrons;
 	std::vector<std::vector<Eigen::MatrixXcd>> spin_operators;
+
+	std::vector<double> magnetic_field;
+	Eigen::MatrixXcd hamiltonian_matrix;
+
 
 	//Functions used for the internal workings
 	Eigen::MatrixXcd kroneckerProductComplex(Eigen::MatrixXcd a, Eigen::MatrixXcd b);
@@ -51,8 +59,7 @@ private:
 	Eigen::MatrixXcd kroneckerProductComplexSlow(Eigen::MatrixXcd, Eigen::MatrixXcd);
 	std::vector<Eigen::Vector3d> calculateDistances(std::vector<Eigen::Vector3d>);
 	
-	//Individual hamiltonian matrices
-	Eigen::MatrixXcd dipolar(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, Eigen::Vector3d r);
+	//Individual hamiltonian matrix functions
 };
 
 #endif
