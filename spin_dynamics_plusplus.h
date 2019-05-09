@@ -40,6 +40,8 @@ public:
 	double expScaling(double beta, double r, double dist);
 	Eigen::MatrixXcd singletProjector(std::vector<Eigen::MatrixXcd> electron1_spin_ops, std::vector<Eigen::MatrixXcd> electron2_spin_ops);
 
+	std::vector<Eigen::Vector3d> calculateDistances(std::vector<Eigen::Vector3d>);
+
 private:
 	//Internal variables
 	int size_of_matrix;
@@ -57,7 +59,6 @@ private:
 	std::vector<Eigen::MatrixXcd> deriveSpinOperator(float spin);
 	Eigen::MatrixXcd calculateCombinationMatrix(Eigen::MatrixXcd, std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>);
 	Eigen::MatrixXcd kroneckerProductComplexSlow(Eigen::MatrixXcd, Eigen::MatrixXcd);
-	std::vector<Eigen::Vector3d> calculateDistances(std::vector<Eigen::Vector3d>);
 	
 	//Individual hamiltonian matrix functions
 };
