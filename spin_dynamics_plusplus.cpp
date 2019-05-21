@@ -16,6 +16,12 @@ void SpinDynamics::SetMagneticField(std::vector<double> mField){ magnetic_field 
 
 Eigen::MatrixXcd SpinDynamics::GetHamiltonianMatrix(){ return hamiltonian_matrix; }
 
+void SpinDynamics::SetRadicalRadius(double r){ radical_radius = r; }
+
+void SpinDynamics::SetBeta(double b){ beta = b; }
+
+void SpinDynamics::SetkS0(double k){ kS0 = k; }
+
 //Generates the spin operator for a spin particle
 std::vector<Eigen::MatrixXcd> SpinDynamics::deriveSpinOperator(float spin){
 
@@ -302,4 +308,32 @@ double SpinDynamics::singletYield(Eigen::MatrixXcd hamiltonian, Eigen::MatrixXcd
                 }
         }
         return (2*yields_0)/size_of_matrix;
+}
+
+SpinDynamics::SpinDynamics(const SpinDynamics& spd){
+	size_of_matrix = spd.size_of_matrix;
+	number_of_electrons = spd.number_of_electrons;
+	spin_operators = spd.spin_operators;
+	magnetic_field = spd.magnetic_field;
+	hamiltonian_matrix = spd.hamiltonian_matrix;
+}
+
+Eigen::MatrixXcd SpinDynamics::calculateK1(std::vector<Eigen::Vector3d> coordinates){
+	std::vector<Eigen::Vector3d> distances = calculateDistances(coordinates);
+
+	//Calculate the dipolar coupling in the same order as the distances
+	int dist_counter=0;
+	Eigen::MatrixXcd singlet_projector = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
+	double eScale;
+	Eigen::MatrixXcd K1 = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
+	for (int spin1_counter=number_of_electrons-2; spin1_counter>-1; spin1_counter--){
+		for (int spin2_counter=spin1_counter+1; spin2_counter<number_of_electrons; spin2_counter++){
+			singlet_projector = singletProjector(spin_operators[spin1_counter], spin_operators[spin2_counter]);
+			eScale = expScaling(beta, radical_radius, distances[dist_counter].norm());
+			K1 += 0.5*kS0*eScale*singlet_projector;
+			dist_counter++;
+		}
+	}
+
+	return K1;
 }

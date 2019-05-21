@@ -13,6 +13,7 @@ class SpinDynamics
 public:
 
 	SpinDynamics();
+
 	//Getters and Setters
 	void SetSizeOfMatrix(int);
 	int GetSizeOfMatrix();
@@ -22,6 +23,9 @@ public:
 	int GetNumberOfElectrons();
 	void SetMagneticField(std::vector<double>);
 	Eigen::MatrixXcd GetHamiltonianMatrix();
+	void SetRadicalRadius(double);
+	void SetBeta(double);
+	void SetkS0(double);
 
 
 	//Setting up spin operators
@@ -36,11 +40,14 @@ public:
 
 
 	//Yields and misc - needs a reshuffle
+	Eigen::MatrixXcd calculateK1(std::vector<Eigen::Vector3d>);
 	double singletYield(Eigen::MatrixXcd hamiltonian, Eigen::MatrixXcd K1, double KSc);
 	double expScaling(double beta, double r, double dist);
 	Eigen::MatrixXcd singletProjector(std::vector<Eigen::MatrixXcd> electron1_spin_ops, std::vector<Eigen::MatrixXcd> electron2_spin_ops);
 
 	std::vector<Eigen::Vector3d> calculateDistances(std::vector<Eigen::Vector3d>);
+
+	SpinDynamics(const SpinDynamics& spd);
 
 private:
 	//Internal variables
@@ -50,6 +57,10 @@ private:
 
 	std::vector<double> magnetic_field;
 	Eigen::MatrixXcd hamiltonian_matrix;
+
+	double radical_radius;
+	double kS0;
+	double beta;
 
 
 	//Functions used for the internal workings
