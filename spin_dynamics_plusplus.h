@@ -32,6 +32,7 @@ public:
 	void spinsToSpinOperators(float [], int);
 
 	//Hamiltonian sections
+	Eigen::MatrixXcd calculateZeeman();
 	Eigen::MatrixXcd zeeman(std::vector<Eigen::MatrixXcd>);
 	Eigen::MatrixXcd hyperfine(std::vector<Eigen::MatrixXcd>, std::vector<Eigen::MatrixXcd>, double);
 	Eigen::MatrixXcd calculateDipolar(std::vector<Eigen::Vector3d>);

@@ -28,7 +28,7 @@ int main()
 
 	SPD.SetNumberOfElectrons(3);
 	//These are all the spins (nuclei too)
-	float spins [6] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+	float spins [3] = {0.5, 0.5, 0.5};
 
 	//Takes in the spins and the total number of spins
 	SPD.spinsToSpinOperators(spins, sizeof(spins)/sizeof(spins[0]));
@@ -36,62 +36,41 @@ int main()
 	//Currently saving the spin_operators outside of the object
 	std::vector<std::vector<Eigen::MatrixXcd>> spin_ops = SPD.GetSpinOperators();
 
-	//SPD.SetMagneticField({0, 0, 1.0});
-	std::vector<std::pair<int, int>> interaction_partners = {{0, 3}, {1, 4}, {2, 5}};
+	SPD.SetMagneticField({0, 0, 1.0});
+	//std::vector<std::pair<int, int>> interaction_partners = {{0, 3}, {1, 4}, {2, 5}};
 
 
 
 
 
 
-
-	//Make a total zeeman that takes in the number of electrons and the spins and runs the individual zeeman functions
-	//Eigen::MatrixXcd zeeman = SPD.zeeman(spin_ops[0]);
-	//zeeman += SPD.zeeman(spin_ops[1]);
-	//zeeman += SPD.zeeman(spin_ops[2]);
 
 	//Change this to be anisotropic?
 	//Eigen::MatrixXcd h_hyperfine = SPD.hyperfine(spin_ops[0], spin_ops[3], 10);
-	Eigen::MatrixXcd h_hyperfine = SPD.hyperfine(spin_ops[interaction_partners[0].first], spin_ops[interaction_partners[0].second], 10.3172);
-	h_hyperfine += SPD.hyperfine(spin_ops[interaction_partners[1].first], spin_ops[interaction_partners[1].second], 10.3172);
-	h_hyperfine += SPD.hyperfine(spin_ops[interaction_partners[2].first], spin_ops[interaction_partners[2].second], 10.3172);
+	//Eigen::MatrixXcd h_hyperfine = SPD.hyperfine(spin_ops[interaction_partners[0].first], spin_ops[interaction_partners[0].second], 10.3172);
+	//h_hyperfine += SPD.hyperfine(spin_ops[interaction_partners[1].first], spin_ops[interaction_partners[1].second], 10.3172);
+	//h_hyperfine += SPD.hyperfine(spin_ops[interaction_partners[2].first], spin_ops[interaction_partners[2].second], 10.3172);
 
 	//std::cout << zeeman+h_hyperfine << std::endl;
 
 	//Must have a coordinate for each electron
 	std::vector<Eigen::Vector3d> coordinates;
-	coordinates.push_back({-4.5, 0, 0});
-	coordinates.push_back({4.5, 0, 0});
-	coordinates.push_back({10, 3, 0});
+	coordinates.push_back({0, 0, -4.5});
+	coordinates.push_back({0, 0, 4.5});
+	coordinates.push_back({0, 0, 9.0});
 
 	//Make sure can calculate the individual dipolar contribution
 	Eigen::MatrixXcd h_dipolar = SPD.calculateDipolar(coordinates);
 
 	//Save all the hamiltonian sections as we go along, then save the total hamiltonian and reset the sections/sum up the hamiltonian as we go?
-	Eigen::MatrixXcd hamiltonian = h_dipolar+h_hyperfine;//+zeeman;
+	Eigen::MatrixXcd hamiltonian = h_dipolar;//+h_hyperfine;//+zeeman;
 
 
 	std::vector<Eigen::Vector3d> distances = SPD.calculateDistances(coordinates);
 
 
 	//Set these in the functions? But need to check how this is affected by different combinations of electrons
-	//double kS0 = 0.2;
 	double kSc = 0.01;
-
-	//Pass the electron indices here rather than the spin ops, then save as a function in the class
-	//Set beta in SPD and make this more general
-		
-	/*Eigen::MatrixXcd singlet_projector = SPD.singletProjector(spin_ops[0], spin_ops[1]);
-	double eScale = SPD.expScaling(1.4, 4.5, distances[1].norm());	
-	Eigen::MatrixXcd K1 = 0.5*kS0*eScale*singlet_projector;
-
-	singlet_projector = SPD.singletProjector(spin_ops[1], spin_ops[2]);
-	eScale = SPD.expScaling(1.4, 4.5, distances[0].norm());
-	K1 += 0.5*kS0*eScale*singlet_projector;
-	
-	singlet_projector = SPD.singletProjector(spin_ops[0], spin_ops[2]);
-	eScale = SPD.expScaling(1.4, 4.5, distances[2].norm());
-	K1 += 0.5*kS0*eScale*singlet_projector;*/
 
 	SPD.SetBeta(1.4);
 	SPD.SetRadicalRadius(4.5);
@@ -109,9 +88,7 @@ int main()
 		double z_field = B;
 		SPD_loop.SetMagneticField({0, 0, z_field});
 
-		Eigen::MatrixXcd zeeman = SPD_loop.zeeman(spin_ops[0]);
-		zeeman += SPD_loop.zeeman(spin_ops[1]);
-		zeeman += SPD_loop.zeeman(spin_ops[2]);
+		Eigen::MatrixXcd zeeman = SPD_loop.calculateZeeman();
 
 		Eigen::MatrixXcd hamiltonian_loop = hamiltonian+zeeman;
 		double yield = SPD_loop.singletYield(hamiltonian_loop, K1, kSc);

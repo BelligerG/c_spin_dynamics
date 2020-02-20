@@ -141,6 +141,16 @@ void SpinDynamics::spinsToSpinOperators(float spins [], int number_of_spins){
 	size_of_matrix = std::pow(2, number_of_spins);
 }
 
+Eigen::MatrixXcd SpinDynamics::calculateZeeman(){
+	Eigen::MatrixXcd h_zeeman = Eigen::MatrixXcd::Zero(size_of_matrix,size_of_matrix);
+
+	for(int spin_op=0; spin_op<number_of_electrons; spin_op++){
+		h_zeeman += zeeman(spin_operators[spin_op]);
+	}
+
+	return h_zeeman;
+}
+
 Eigen::MatrixXcd SpinDynamics::zeeman(std::vector<Eigen::MatrixXcd> electron_spin_ops){
 
 	Eigen::MatrixXcd h_zeeman = Eigen::MatrixXcd::Zero(size_of_matrix, size_of_matrix);
@@ -316,6 +326,9 @@ SpinDynamics::SpinDynamics(const SpinDynamics& spd){
 	spin_operators = spd.spin_operators;
 	magnetic_field = spd.magnetic_field;
 	hamiltonian_matrix = spd.hamiltonian_matrix;
+	radical_radius = spd.radical_radius;
+	kS0 = spd.kS0;
+	beta = spd.beta;
 }
 
 Eigen::MatrixXcd SpinDynamics::calculateK1(std::vector<Eigen::Vector3d> coordinates){
